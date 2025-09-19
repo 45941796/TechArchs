@@ -1,0 +1,161 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechArch partners with global organizations to empower youth with tech skills.">
+    <meta name="keywords" content="TechArch, partners, tech training, collaborations, East Africa">
+    <meta property="og:title" content="Partners - TechArch">
+    <meta property="og:description" content="Discover TechArch's global partners!">
+    <meta property="og:image" content="https://example.com/techarch-partners-og.jpg">
+    <meta property="og:url" content="https://45941796.github.io/TechArch/partners.html">
+    <meta property="og:type" content="website">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; frame-src https://www.youtube.com;">
+    <title>Partners - TechArch</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css?v=1.0"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css?v=1.0"/>
+    <link rel="stylesheet" href="styles.css?v=1.4">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div id="cookie-consent" role="dialog" aria-labelledby="cookie-title">
+        <div class="cookie-content">
+            <h3 id="cookie-title">We use cookies</h3>
+            <p>We use cookies to enhance your experience. By continuing, you agree to our <a href="about.html#privacy">Privacy Policy</a>.</p>
+            <button class="btn" onclick="acceptCookies()" aria-label="Accept cookies">Accept</button>
+        </div>
+    </div>
+    <canvas id="particle-canvas" aria-hidden="true"></canvas>
+    <div id="login-modal" class="modal" role="dialog" aria-labelledby="login-title" aria-hidden="true">
+        <div class="modal-content">
+            <span class="modal-close" role="button" aria-label="Close login modal">&times;</span>
+            <h3 id="login-title">Login to Dashboard</h3>
+            <form id="login-form" role="form" aria-label="Dashboard login">
+                <input type="text" placeholder="Username" required aria-label="Username">
+                <input type="password" placeholder="Password" required aria-label="Password">
+                <button type="submit" class="btn" aria-label="Login to dashboard" tabindex="0">Login</button>
+            </form>
+        </div>
+    </div>
+    <div id="modal" class="modal" role="dialog" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-content">
+            <span class="modal-close" role="button" aria-label="Close modal">&times;</span>
+            <h3 id="modal-title"></h3>
+            <p id="modal-description"></p>
+        </div>
+    </div>
+    <div class="bottom-nav">
+        <button id="rate-btn" class="btn" aria-label="Rate our site" tabindex="0">Rate Site</button>
+        <a href="training.html#signup" class="btn" aria-label="Sign up for training" tabindex="0">Sign Up</a>
+    </div>
+    <header class="animate__animated animate__fadeInDown sticky">
+        <nav>
+            <div class="logo">TechArch</div>
+            <input type="text" id="global-search" placeholder="Search..." aria-label="Search site">
+            <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+            <ul class="nav-menu">
+                <li><a href="index.html" tabindex="0">Home</a></li>
+                <li><a href="training.html" tabindex="0">Training</a></li>
+                <li><a href="jobs.html" tabindex="0">Jobs</a></li>
+                <li><a href="stories.html" tabindex="0">Stories</a></li>
+                <li><a href="partners.html" tabindex="0">Partners</a></li>
+                <li><a href="blog.html" tabindex="0">Blog</a></li>
+                <li><a href="contact.html" tabindex="0">Contact</a></li>
+                <li><a href="about.html" tabindex="0">About</a></li>
+                <li><button id="login-btn" class="btn" aria-label="Login to dashboard" tabindex="0">Login</button></li>
+            </ul>
+            <button id="dark-mode-toggle" class="btn" aria-label="Toggle dark mode" tabindex="0">Dark Mode</button>
+        </nav>
+    </header>
+    <section class="partners" data-aos="fade-up">
+        <h1>Our Partners</h1>
+        <p>We collaborate with global organizations to empower youth.</p>
+        <div class="partner-carousel" role="region" aria-label="Partner logos carousel">
+            <div class="partner" data-aos="fade-up">
+                <img src="https://example.com/comptia-logo.png" alt="CompTIA logo" loading="lazy">
+                <p>CompTIA</p>
+                <button class="btn learn-more" data-modal-title="CompTIA Partnership" data-modal-description="CompTIA provides industry-recognized certifications for our trainees." aria-label="Learn more about CompTIA" tabindex="0">Learn More</button>
+            </div>
+            <div class="partner" data-aos="fade-up" data-aos-delay="100">
+                <img src="https://example.com/cisco-logo.png" alt="Cisco logo" loading="lazy">
+                <p>Cisco</p>
+                <button class="btn learn-more" data-modal-title="Cisco Partnership" data-modal-description="Cisco supports our networking and cybersecurity training." aria-label="Learn more about Cisco" tabindex="0">Learn More</button>
+            </div>
+            <div class="partner" data-aos="fade-up" data-aos-delay="200">
+                <img src="https://example.com/microsoft-logo.png" alt="Microsoft logo" loading="lazy">
+                <p>Microsoft</p>
+                <button class="btn learn-more" data-modal-title="Microsoft Partnership" data-modal-description="Microsoft funds our AI and cloud training programs." aria-label="Learn more about Microsoft" tabindex="0">Learn More</button>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <h3>Stay Updated</h3>
+        <form class="newsletter" action="YOUR_MAILCHIMP_URL" method="post" role="form" aria-label="Newsletter signup">
+            <input type="email" name="EMAIL" placeholder="Enter your email" required aria-label="Email address">
+            <button type="submit" class="btn" aria-label="Subscribe to newsletter" tabindex="0">Subscribe</button>
+        </form>
+        <div class="newsletter-success">Subscribed successfully! ✓</div>
+        <p>Led by Walter Koech & Abdi Hirisi, CEOs | Registered in Minnesota, USA | Nairobi, Kenya | +254714392009 | info@techarch.org</p>
+        <p>Follow us on <a href="https://x.com/TechArch">X</a> | <a href="https://instagram.com/TechArch">Instagram</a> | <a href="https://linkedin.com/company/TechArch">LinkedIn</a></p>
+        <p>© 2025 TechArch. All rights reserved.</p>
+    </footer>
+    <div id="chatbot" role="button" aria-label="Open chatbot" tabindex="0">💬</div>
+    <div id="chatbot-messages" role="region" aria-live="polite"></div>
+    <button id="back-to-top" aria-label="Back to top" tabindex="0">↑</button>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "TechArch",
+        "url": "https://45941796.github.io/TechArch/",
+        "sameAs": [
+            "https://www.comptia.org/",
+            "https://www.cisco.com/",
+            "https://www.microsoft.com/"
+        ]
+    }
+    </script>
+    <script src="script.js?v=1.4"></script>
+</body>
+</html>
